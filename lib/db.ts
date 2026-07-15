@@ -1,65 +1,50 @@
-import { promises as fs } from "fs";
-import path from "path";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import type { CreateItemInput, Item, UpdateItemInput } from "./types";
+import { getPool } from "./mysql";
 
-const DATA_PATH = path.join(process.cwd(), "data", "items.json");
+type ItemRow = RowDataPacket & {
+  id: number;
+  title: string;
+  done: number | boolean;
+  created_at: Date | string;
+};
 
-async function ensureStore(): Promise<Item[]> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, "utf8");
-    return JSON.parse(raw) as Item[];
-  } catch {
-    const seed: Item[] = [
-      {
-        id: 1,
-        title: "買牛奶",
-        done: false,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        title: "寫文件",
-        done: true,
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: 3,
-        title: "開會",
-        done: false,
-        created_at: new Date().toISOString(),
-      },
-    ];
-    await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-    await fs.writeFile(DATA_PATH, JSON.stringify(seed, null, 2), "utf8");
-    return seed;
-  }
-}
-
-async function save(items: Item[]) {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(items, null, 2), "utf8");
+function mapRow(row: ItemRow): Item {
+  return {
+    id: row.id,
+    title: row.title,
+    done: Boolean(row.done),
+    created_at:
+      row.created_at instanceof Date
+        ? row.created_at.toISOString()
+        : String(row.created_at),
+  };
 }
 
 export async function getAll(): Promise<Item[]> {
-  return ensureStore();
+  const [rows] = await getPool().query<ItemRow[]>(
+    "SELECT id, title, done, created_at FROM items ORDER BY id ASC"
+  );
+  return rows.map(mapRow);
 }
 
 export async function getById(id: number): Promise<Item | null> {
-  const items = await ensureStore();
-  return items.find((i) => i.id === id) ?? null;
+  const [rows] = await getPool().execute<ItemRow[]>(
+    "SELECT id, title, done, created_at FROM items WHERE id = ?",
+    [id]
+  );
+  const row = rows[0];
+  return row ? mapRow(row) : null;
 }
 
 export async function create(input: CreateItemInput): Promise<Item> {
-  const items = await ensureStore();
-  const nextId = items.reduce((max, i) => Math.max(max, i.id), 0) + 1;
-  const item: Item = {
-    id: nextId,
-    title: input.title.trim(),
-    done: false,
-    created_at: new Date().toISOString(),
-  };
-  items.push(item);
-  await save(items);
+  const title = input.title.trim();
+  const [result] = await getPool().execute<ResultSetHeader>(
+    "INSERT INTO items (title, done) VALUES (?, 0)",
+    [title]
+  );
+  const item = await getById(result.insertId);
+  if (!item) throw new Error("建立後找不到項目");
   return item;
 }
 
@@ -67,38 +52,44 @@ export async function replace(
   id: number,
   input: Required<UpdateItemInput>
 ): Promise<Item | null> {
-  const items = await ensureStore();
-  const idx = items.findIndex((i) => i.id === id);
-  if (idx === -1) return null;
-  items[idx] = {
-    ...items[idx],
-    title: input.title.trim(),
-    done: input.done,
-  };
-  await save(items);
-  return items[idx];
+  const [result] = await getPool().execute<ResultSetHeader>(
+    "UPDATE items SET title = ?, done = ? WHERE id = ?",
+    [input.title.trim(), input.done ? 1 : 0, id]
+  );
+  if (result.affectedRows === 0) return null;
+  return getById(id);
 }
 
 export async function patch(
   id: number,
   input: UpdateItemInput
 ): Promise<Item | null> {
-  const items = await ensureStore();
-  const idx = items.findIndex((i) => i.id === id);
-  if (idx === -1) return null;
-  items[idx] = {
-    ...items[idx],
-    ...(input.title !== undefined ? { title: input.title.trim() } : {}),
-    ...(input.done !== undefined ? { done: input.done } : {}),
-  };
-  await save(items);
-  return items[idx];
+  const fields: string[] = [];
+  const values: (string | number)[] = [];
+
+  if (input.title !== undefined) {
+    fields.push("title = ?");
+    values.push(input.title.trim());
+  }
+  if (input.done !== undefined) {
+    fields.push("done = ?");
+    values.push(input.done ? 1 : 0);
+  }
+  if (fields.length === 0) return getById(id);
+
+  values.push(id);
+  const [result] = await getPool().execute<ResultSetHeader>(
+    `UPDATE items SET ${fields.join(", ")} WHERE id = ?`,
+    values
+  );
+  if (result.affectedRows === 0) return null;
+  return getById(id);
 }
 
 export async function remove(id: number): Promise<boolean> {
-  const items = await ensureStore();
-  const next = items.filter((i) => i.id !== id);
-  if (next.length === items.length) return false;
-  await save(next);
-  return true;
+  const [result] = await getPool().execute<ResultSetHeader>(
+    "DELETE FROM items WHERE id = ?",
+    [id]
+  );
+  return result.affectedRows > 0;
 }

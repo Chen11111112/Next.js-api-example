@@ -9,7 +9,8 @@ export default function Home() {
       </h1>
       <p className="mt-3 max-w-md text-base leading-relaxed text-stone-500">
         Server Action 與 API Route 的 GET / POST / PUT / PATCH / DELETE。
-        資料對應 <code className="text-stone-600">db.sql</code> 的 items 表。
+        資料存在 MySQL <code className="text-stone-600">items</code> 表（見{" "}
+        <code className="text-stone-600">db.sql</code>）。
       </p>
 
       <nav className="mt-10 flex flex-col gap-3 sm:flex-row">

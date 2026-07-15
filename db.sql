@@ -1,12 +1,17 @@
--- 超簡易 items 表（SQLite / MySQL / Postgres 通用）
+-- MySQL：建立資料庫與 items 表
+CREATE DATABASE IF NOT EXISTS next_api_example
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE next_api_example;
+
 CREATE TABLE IF NOT EXISTS items (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  title       TEXT        NOT NULL,
-  done        INTEGER     NOT NULL DEFAULT 0,  -- 0=未完成, 1=完成
-  created_at  TEXT        NOT NULL DEFAULT (datetime('now'))
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  title       VARCHAR(255) NOT NULL,
+  done        TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 範例資料
 INSERT INTO items (title, done) VALUES
   ('買牛奶', 0),
   ('寫文件', 1),
