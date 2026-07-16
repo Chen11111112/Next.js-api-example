@@ -1,9 +1,9 @@
 -- MySQL：建立資料庫與 items 表
-CREATE DATABASE IF NOT EXISTS next_api_example
+CREATE DATABASE IF NOT EXISTS defaultdb
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE next_api_example;
+USE defaultdb;
 
 CREATE TABLE IF NOT EXISTS items (
   id          INT AUTO_INCREMENT PRIMARY KEY,
