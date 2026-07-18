@@ -57,6 +57,7 @@ export default function Home() {
           <dd className="text-stone-600">/api/items/:id</dd>
         </div>
       </dl>
+      <br/>
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-400">
         Powered by Hy.C
       </p>
