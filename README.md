@@ -1,6 +1,12 @@
 # 全端流程
 
-本專案示範同一套 `items` CRUD，透過兩種入口（API Route / Server Action）共用同一資料層。
+本專案為Next.js全端示範專案，展示透過兩種API串接方式（API Route / Server Action）實現Next.js框架下的全端開發。
+
+使用aiven線上平台作為本專案資料庫。
+
+> Powered By [[name=陳毓]](https://hyc.eshachem.com/) 
+> Latest update -  07/17/2026
+> Home Page: https://next-js-api-example-nn50qpc17-hchen1029-2865s-projects.vercel.app/
 
 ## 架構總覽
 
@@ -163,7 +169,16 @@ Server 重跑 listItems() → 回傳更新後 HTML
 | `patch` | 只更新有傳入的欄位 |
 | `remove` | 刪除；找不到回 `false` |
 
-儲存檔：`data/items.json`（首次讀取若無檔案會 seed 三筆範例）。
+連線：`lib/mysql.ts` 讀取 `.env.local`（見 `.env.example`）。
+
+### .env.example
+```bash
+MYSQL_HOST=
+MYSQL_PORT=
+MYSQL_USER=avnadmin
+MYSQL_PASSWORD=
+MYSQL_DATABASE=defaultdb
+```
 
 ---
 
@@ -175,16 +190,3 @@ Server 重跑 listItems() → 回傳更新後 HTML
 | 傳輸 | 自行組 JSON / 看 HTTP status | FormData，Next 處理呼叫 |
 | 回應 | JSON（適合外部客戶端、SPA） | 常搭配 `revalidatePath` 重整 UI |
 | 共用 | 兩者都呼叫 `lib/db` | 同左 |
-
----
-
-## 本機啟動
-
-```bash
-npm install
-npm run dev
-```
-
-- 首頁：http://localhost:3000  
-- API 示範：http://localhost:3000/api-demo  
-- Action 示範：http://localhost:3000/actions-demo  

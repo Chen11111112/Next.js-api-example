@@ -8,7 +8,8 @@ export default function Home() {
         CRUD 範例
       </h1>
       <p className="mt-3 max-w-md text-base leading-relaxed text-stone-500">
-        Server Action 與 API Route 的 GET / POST / PUT / PATCH / DELETE。
+        本專案為Next.js框架下的全端開發示範專案。<br/>
+        展示 Server Action 與 API Route 的 GET / POST / PUT / PATCH / DELETE。
         資料存在 MySQL <code className="text-stone-600">items</code> 表（見{" "}
         <code className="text-stone-600">db.sql</code>）。
       </p>
@@ -25,6 +26,12 @@ export default function Home() {
           className="border border-stone-300 bg-white px-5 py-3 text-center text-sm text-stone-700 transition-colors hover:border-stone-500 hover:bg-stone-50"
         >
           Server Action 示範
+        </a>
+        <a
+          href="https://github.com/Chen11111112/Next.js-api-example.git"
+          className="border border-stone-300 bg-white px-5 py-3 text-center text-sm text-stone-700 transition-colors hover:border-stone-500 hover:bg-stone-50"
+        >
+          GitHub
         </a>
       </nav>
 
@@ -50,6 +57,9 @@ export default function Home() {
           <dd className="text-stone-600">/api/items/:id</dd>
         </div>
       </dl>
+      <p className="text-xs font-medium uppercase tracking-[0.2em] text-stone-400">
+        Powered by Hy.C
+      </p>
     </div>
   );
 }
