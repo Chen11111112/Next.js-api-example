@@ -4,9 +4,9 @@
 
 使用aiven線上平台作為本專案資料庫。
 
-> Powered By [[name=陳毓]](https://hyc.eshachem.com/) 
-> Latest update -  07/17/2026
-> Home Page: https://next-js-api-example-nn50qpc17-hchen1029-2865s-projects.vercel.app/
+> Powered By [[name=陳毓]](https://hyc.eshachem.com/)   
+> Latest update -  07/17/2026  
+> Home Page: https://next-js-api-example-pearl.vercel.app/  
 
 ## 架構總覽
 
